@@ -9,35 +9,92 @@ import { createClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { serializeCarData } from "@/lib/helpers";
 
-// Function to convert File to base64
-async function fileToBase64(file) {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  return buffer.toString("base64");
-}
-
-// Gemini AI integration for car image processing
-export async function processCarImageWithAI(file) {
+// FIXED: Gemini AI integration for car image processing
+export async function processCarImageWithAI(imageData) {
   try {
     // Check if API key is available
     if (!process.env.GEMINI_API_KEY) {
       throw new Error("Gemini API key is not configured");
     }
 
+    console.log("=== SERVER ACTION DEBUG ===");
+    console.log("Raw imageData received:", imageData);
+    console.log("imageData type:", typeof imageData);
+    console.log("imageData keys:", Object.keys(imageData || {}));
+    console.log("imageData stringified:", JSON.stringify(imageData).substring(0, 200) + "...");
+
+    // Try to extract base64 data with multiple fallback methods
+    let base64Data;
+    let mimeType = 'image/jpeg'; // Default fallback
+
+    // Method 1: Check if imageData has base64 property
+    if (imageData && typeof imageData === 'object' && imageData.base64) {
+      console.log("Method 1: Found base64 property");
+      base64Data = imageData.base64.includes(',') ? imageData.base64.split(',')[1] : imageData.base64;
+      mimeType = imageData.type || mimeType;
+    }
+    // Method 2: Check if imageData itself is a base64 string
+    else if (typeof imageData === 'string' && imageData.startsWith('data:')) {
+      console.log("Method 2: imageData is base64 string");
+      base64Data = imageData.split(',')[1];
+      const mimeMatch = imageData.match(/data:([^;]+);/);
+      mimeType = mimeMatch ? mimeMatch[1] : mimeType;
+    }
+    // Method 3: Check if the data is just the base64 part without the data URL prefix
+    else if (typeof imageData === 'string' && imageData.length > 100) {
+      console.log("Method 3: imageData appears to be raw base64");
+      base64Data = imageData;
+    }
+    // Method 4: Try to reconstruct from a serialized object
+    else if (imageData && typeof imageData === 'object') {
+      console.log("Method 4: Attempting to extract from object");
+      
+      // Check all possible property names
+      const possibleBase64Keys = ['base64', 'data', 'image', 'src', 'result'];
+      for (const key of possibleBase64Keys) {
+        if (imageData[key] && typeof imageData[key] === 'string') {
+          console.log(`Found data in property: ${key}`);
+          if (imageData[key].startsWith('data:')) {
+            base64Data = imageData[key].split(',')[1];
+            const mimeMatch = imageData[key].match(/data:([^;]+);/);
+            mimeType = mimeMatch ? mimeMatch[1] : mimeType;
+            break;
+          } else if (imageData[key].length > 100) {
+            base64Data = imageData[key];
+            break;
+          }
+        }
+      }
+    }
+
+    console.log("Extracted base64Data length:", base64Data ? base64Data.length : 'null');
+    console.log("Extracted mimeType:", mimeType);
+
+    // Validate base64 data
+    if (!base64Data || base64Data.length < 100) {
+      throw new Error(`Failed to extract valid base64 data. Received: ${typeof imageData}, Keys: ${Object.keys(imageData || {}).join(', ')}`);
+    }
+
+    // Test base64 validity
+    try {
+      atob(base64Data);
+    } catch (e) {
+      throw new Error("Invalid base64 data format");
+    }
+
     // Initialize Gemini API
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Convert image file to base64
-    const base64Image = await fileToBase64(file);
-
     // Create image part for the model
     const imagePart = {
       inlineData: {
-        data: base64Image,
-        mimeType: file.type,
+        data: base64Data,
+        mimeType: mimeType,
       },
     };
+
+    console.log("Sending to Gemini API...");
 
     // Define the prompt for car detail extraction
     const prompt = `
@@ -47,11 +104,11 @@ export async function processCarImageWithAI(file) {
       3. Year (approximately)
       4. Color
       5. Body type (SUV, Sedan, Hatchback, etc.)
-      6. Mileage
+      6. Mileage (estimate if not visible)
       7. Fuel type (your best guess)
       8. Transmission type (your best guess)
-      9. Price (your best guess)
-      9. Short Description as to be added to a car listing
+      9. Price (your best guess in USD)
+      10. Short Description as to be added to a car listing
 
       Format your response as a clean JSON object with these fields:
       {
@@ -59,8 +116,8 @@ export async function processCarImageWithAI(file) {
         "model": "",
         "year": 0000,
         "color": "",
-        "price": "",
-        "mileage": "",
+        "price": 0000,
+        "mileage": 0000,
         "bodyType": "",
         "fuelType": "",
         "transmission": "",
@@ -76,7 +133,13 @@ export async function processCarImageWithAI(file) {
     const result = await model.generateContent([imagePart, prompt]);
     const response = await result.response;
     const text = response.text();
+    
+    console.log("Gemini API raw response:", text);
+    
+    // Clean the response
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    
+    console.log("Cleaned response:", cleanedText);
 
     // Parse the JSON response
     try {
@@ -84,28 +147,34 @@ export async function processCarImageWithAI(file) {
 
       // Validate the response format
       const requiredFields = [
-        "make",
-        "model",
-        "year",
-        "color",
-        "bodyType",
-        "price",
-        "mileage",
-        "fuelType",
-        "transmission",
-        "description",
-        "confidence",
+        "make", "model", "year", "color", "bodyType", 
+        "price", "mileage", "fuelType", "transmission", 
+        "description", "confidence"
       ];
 
-      const missingFields = requiredFields.filter(
-        (field) => !(field in carDetails)
-      );
+      const missingFields = requiredFields.filter(field => !(field in carDetails));
 
       if (missingFields.length > 0) {
-        throw new Error(
-          `AI response missing required fields: ${missingFields.join(", ")}`
-        );
+        console.warn("Missing fields:", missingFields);
+        // Fill missing fields with defaults
+        missingFields.forEach(field => {
+          if (field === 'year' || field === 'price' || field === 'mileage') {
+            carDetails[field] = 0;
+          } else if (field === 'confidence') {
+            carDetails[field] = 0.5;
+          } else {
+            carDetails[field] = '';
+          }
+        });
       }
+
+      // Ensure numeric fields are numbers
+      carDetails.year = parseInt(carDetails.year) || 0;
+      carDetails.price = parseFloat(carDetails.price) || 0;
+      carDetails.mileage = parseInt(carDetails.mileage) || 0;
+      carDetails.confidence = parseFloat(carDetails.confidence) || 0.5;
+
+      console.log("Final extracted car details:", carDetails);
 
       // Return success response with data
       return {
@@ -118,15 +187,19 @@ export async function processCarImageWithAI(file) {
       return {
         success: false,
         error: "Failed to parse AI response",
+        rawResponse: text,
       };
     }
   } catch (error) {
-    console.error();
-    throw new Error("Gemini API error:" + error.message);
+    console.error("Gemini API error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 }
 
-// Add a car to the database with images
+// FIXED: Add a car to the database with images
 export async function addCar({ carData, images }) {
   try {
     const { userId } = await auth();
@@ -183,7 +256,7 @@ export async function addCar({ carData, images }) {
       }
 
       // Get the public URL for the uploaded file
-      const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-images/${filePath}`; // disable cache in config
+      const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-images/${filePath}`;
 
       imageUrls.push(publicUrl);
     }
@@ -195,7 +268,7 @@ export async function addCar({ carData, images }) {
     // Add the car to the database
     const car = await db.car.create({
       data: {
-        id: carId, // Use the same ID we used for the folder
+        id: carId,
         make: carData.make,
         model: carData.model,
         year: carData.year,
@@ -209,7 +282,7 @@ export async function addCar({ carData, images }) {
         description: carData.description,
         status: carData.status,
         featured: carData.featured,
-        images: imageUrls, // Store the array of image URLs
+        images: imageUrls,
       },
     });
 
@@ -220,17 +293,19 @@ export async function addCar({ carData, images }) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error adding car:" + error.message);
+    console.error("Error adding car:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 }
 
-// Fetch all cars with simple search
+// KEEP ALL YOUR OTHER EXISTING FUNCTIONS
 export async function getCars(search = "") {
   try {
-    // Build where conditions
     let where = {};
 
-    // Add search filter
     if (search) {
       where.OR = [
         { make: { contains: search, mode: "insensitive" } },
@@ -239,7 +314,6 @@ export async function getCars(search = "") {
       ];
     }
 
-    // Execute main query
     const cars = await db.car.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -260,13 +334,11 @@ export async function getCars(search = "") {
   }
 }
 
-// Delete a car by ID
 export async function deleteCar(id) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    // First, fetch the car to get its images
     const car = await db.car.findUnique({
       where: { id },
       select: { images: true },
@@ -279,17 +351,14 @@ export async function deleteCar(id) {
       };
     }
 
-    // Delete the car from the database
     await db.car.delete({
       where: { id },
     });
 
-    // Delete the images from Supabase storage
     try {
       const cookieStore = cookies();
       const supabase = createClient(cookieStore);
 
-      // Extract file paths from image URLs
       const filePaths = car.images
         .map((imageUrl) => {
           const url = new URL(imageUrl);
@@ -298,7 +367,6 @@ export async function deleteCar(id) {
         })
         .filter(Boolean);
 
-      // Delete files from storage if paths were extracted
       if (filePaths.length > 0) {
         const { error } = await supabase.storage
           .from("car-images")
@@ -306,15 +374,12 @@ export async function deleteCar(id) {
 
         if (error) {
           console.error("Error deleting images:", error);
-          // We continue even if image deletion fails
         }
       }
     } catch (storageError) {
       console.error("Error with storage operations:", storageError);
-      // Continue with the function even if storage operations fail
     }
 
-    // Revalidate the cars list page
     revalidatePath("/admin/cars");
 
     return {
@@ -329,7 +394,6 @@ export async function deleteCar(id) {
   }
 }
 
-// Update car status or featured status
 export async function updateCarStatus(id, { status, featured }) {
   try {
     const { userId } = await auth();
@@ -345,13 +409,11 @@ export async function updateCarStatus(id, { status, featured }) {
       updateData.featured = featured;
     }
 
-    // Update the car
     await db.car.update({
       where: { id },
       data: updateData,
     });
 
-    // Revalidate the cars list page
     revalidatePath("/admin/cars");
 
     return {

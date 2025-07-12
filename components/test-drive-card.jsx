@@ -32,11 +32,11 @@ const getStatusBadge = (status) => {
     case "PENDING":
       return <Badge className="bg-amber-100 text-amber-800">Pending</Badge>;
     case "CONFIRMED":
-      return <Badge className="bg-green-100 text-green-800">Confirmed</Badge>;
+      return <Badge className="bg-emerald-100 text-emerald-800">Confirmed</Badge>;
     case "COMPLETED":
       return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
     case "CANCELLED":
-      return <Badge className="bg-gray-100 text-gray-800">Cancelled</Badge>;
+      return <Badge className="bg-gray-100 text-red-800">Cancelled</Badge>;
     case "NO_SHOW":
       return <Badge className="bg-red-100 text-red-800">No Show</Badge>;
     default:
@@ -47,6 +47,7 @@ const getStatusBadge = (status) => {
 export function TestDriveCard({
   booking,
   onCancel,
+  onAfterCancel, // <-- add this prop
   showActions = true,
   isPast = false,
   isAdmin = false,
@@ -61,6 +62,7 @@ export function TestDriveCard({
 
     await onCancel(booking.id);
     setCancelDialogOpen(false);
+    if (onAfterCancel) onAfterCancel(); // <-- call after cancel
   };
 
   return (
@@ -104,18 +106,18 @@ export function TestDriveCard({
             {renderStatusSelector()}
 
             <div className="space-y-2 my-2">
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-gray-400">
                 <Calendar className="h-4 w-4 mr-2" />
                 {format(new Date(booking.bookingDate), "EEEE, MMMM d, yyyy")}
               </div>
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-gray-400">
                 <Clock className="h-4 w-4 mr-2" />
                 {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
               </div>
 
               {/* Show customer info in admin view */}
               {isAdmin && booking.user && (
-                <div className="flex items-center text-gray-600">
+                <div className="flex items-center text-gray-400">
                   <User className="h-4 w-4 mr-2" />
                   {booking.user.name || booking.user.email}
                 </div>
@@ -128,32 +130,32 @@ export function TestDriveCard({
             <div className="p-4 border-t sm:border-t-0 sm:border-l sm:w-1/4 sm:flex sm:flex-col sm:justify-center sm:items-center sm:space-y-2">
               {/* Show notes if any */}
               {booking.notes && (
-                <div className="bg-gray-50 p-2 rounded text-sm w-full">
-                  <p className="font-medium">Notes:</p>
-                  <p className="text-gray-600">{booking.notes}</p>
+                <div className="bg-gray-400/30 p-2 rounded text-sm w-full">
+                  <p className="font-extrabold">Notes:</p>
+                  <p className="text-gray-300">{booking.notes}</p>
                 </div>
               )}
 
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full my-2 sm:mb-0"
+                className="w-full my-2 sm:mb-0 font-extrabold "
                 asChild
               >
                 <Link
                   href={`/cars/${booking.carId}`}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center bg-white/70 text-black"
                 >
                   View Car
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4 font-extrabold text-black" />
                 </Link>
               </Button>
-              {(booking.status === "PENDING" ||
+            {(booking.status === "PENDING" ||
                 booking.status === "CONFIRMED") && (
                 <Button
                   variant="destructive"
                   size="sm"
-                  className="w-full"
+                  className="w-full font-extrabold bg-red-500/70"
                   onClick={() => setCancelDialogOpen(true)}
                   disabled={isCancelling}
                 >
@@ -172,10 +174,10 @@ export function TestDriveCard({
       {/* Cancel Confirmation Dialog */}
       {onCancel && (
         <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-white/80 text-black backdrop-blur-md max-w-lg mx-auto">
             <DialogHeader>
               <DialogTitle>Cancel Test Drive</DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-gray-700 font-extrabold">
                 Are you sure you want to cancel your test drive for the{" "}
                 {booking.car.year} {booking.car.make} {booking.car.model}? This
                 action cannot be undone.
@@ -211,7 +213,7 @@ export function TestDriveCard({
               >
                 Keep Reservation
               </Button>
-              <Button
+              <Button className="bg-red-500 text-white"
                 variant="destructive"
                 onClick={handleCancel}
                 disabled={isCancelling}

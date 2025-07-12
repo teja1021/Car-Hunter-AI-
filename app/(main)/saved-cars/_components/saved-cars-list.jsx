@@ -14,7 +14,7 @@ export function SavedCarsList({ initialData }) {
           <Heart className="h-8 w-8 text-gray-500" />
         </div>
         <h3 className="text-lg font-medium mb-2">No Saved Cars</h3>
-        <p className="text-gray-500 mb-6 max-w-md">
+        <p className="text-white/70 mb-6 max-w-md">
           You haven't saved any cars yet. Browse our listings and click the
           heart icon to save cars for later.
         </p>

@@ -83,12 +83,28 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'infinite-shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '10%': { transform: 'translateX(-2px)' },
+          '20%': { transform: 'translateX(2px)' },
+          '30%': { transform: 'translateX(-4px)' },
+          '40%': { transform: 'translateX(4px)' },
+          '50%': { transform: 'translateX(-2px)' },
+          '60%': { transform: 'translateX(2px)' },
+          '70%': { transform: 'translateX(-4px)' },
+          '80%': { transform: 'translateX(4px)' },
+          '90%': { transform: 'translateX(-2px)' },
+        },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'infinite-shake': 'infinite-shake 1s infinite linear',
+  		},
+      fontFamily: {
+        creep: ['var(--font-creepster)', 'cursive'],
+      },
   	}
   },
   plugins: [require("tailwindcss-animate")],

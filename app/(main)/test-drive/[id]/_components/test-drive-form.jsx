@@ -219,8 +219,8 @@ export function TestDriveForm({ car, testDriveInfo }) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Left Column - Car Summary */}
       <div className="md:col-span-1">
-        <Card>
-          <CardContent className="p-6">
+        <Card className="float-card">
+          <CardContent className="p-6 bg">
             <h2 className="text-xl font-bold mb-4">Car Details</h2>
 
             <div className="aspect-video rounded-lg overflow-hidden relative mb-4">
@@ -241,15 +241,15 @@ export function TestDriveForm({ car, testDriveInfo }) {
               {car.year} {car.make} {car.model}
             </h3>
 
-            <div className="mt-2 text-xl font-bold text-blue-600">
-              ${car.price.toLocaleString()}
+            <div className="mt-2 text-xl font-bold text-emerald-500">
+              ₹{car.price.toLocaleString('en-IN')}
             </div>
 
-            <div className="mt-4 text-sm text-gray-500">
+            <div className="mt-4 text-sm text-gray-100">
               <div className="flex justify-between py-1 border-b">
                 <span>Mileage</span>
                 <span className="font-medium">
-                  {car.mileage.toLocaleString()} miles
+                  {car.mileage.toLocaleString('en-IN')} miles
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b">
@@ -273,23 +273,23 @@ export function TestDriveForm({ car, testDriveInfo }) {
         </Card>
 
         {/* Dealership Info */}
-        <Card className="mt-6">
+        <Card className="mt-6 bg-gray-800/80 overflow-hidden">
           <CardContent className="p-6">
             <h2 className="text-xl font-bold mb-4">Dealership Info</h2>
             <div className="text-sm">
               <p className="font-medium">
-                {dealership?.name || "Vehiql Motors"}
+                {(!dealership?.name || dealership?.name === "Vehiql Motors") ? "Car Hunter" : dealership?.name}
               </p>
-              <p className="text-gray-600 mt-1">
-                {dealership?.address || "Address not available"}
+              <p className="text-white/50 mt-1">
+                {(!dealership?.address || dealership?.name === "Vehiql Motors") ? "Hunter Dungeon" : dealership?.address}
               </p>
-              <p className="text-gray-600 mt-3">
+              <p className="text-white/50  mt-3">
                 <span className="font-medium">Phone:</span>{" "}
-                {dealership?.phone || "Not available"}
+                {(!dealership?.phone || dealership?.name === "Vehiql Motors") ? "+91 9999999999" : dealership?.phone}
               </p>
-              <p className="text-gray-600">
+              <p className="text-white/50 ">
                 <span className="font-medium">Email:</span>{" "}
-                {dealership?.email || "Not available"}
+                {(!dealership?.email || dealership?.name === "Vehiql Motors") ? "CarHunter@gmail.com" : dealership?.email}
               </p>
             </div>
           </CardContent>
@@ -297,15 +297,15 @@ export function TestDriveForm({ car, testDriveInfo }) {
       </div>
 
       {/* Right Column - Booking Form */}
-      <div className="md:col-span-2">
+      <div className="md:col-span-2 ">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-gray-800/80 overflow-hidden">
             <h2 className="text-xl font-bold mb-6">Schedule Your Test Drive</h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Date Selection */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium">
+                <label className="block text-sm font-medium" >
                   Select a Date
                 </label>
                 <Controller
@@ -319,16 +319,16 @@ export function TestDriveForm({ car, testDriveInfo }) {
                             variant="outline"
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && " bg-white  font-bold hover:text-bold hover:bg-white/40 text-black"
                             )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            <CalendarIcon className="mr-2 h-4 w-4 text-bold" />
                             {field.value
                               ? format(field.value, "PPP")
                               : "Pick a date"}
                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        </PopoverTrigger> 
+                        <PopoverContent className="w-auto p-0 bg-white text-destructive text-black">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -358,32 +358,45 @@ export function TestDriveForm({ car, testDriveInfo }) {
                   control={control}
                   render={({ field }) => (
                     <div>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        disabled={
-                          !selectedDate || availableTimeSlots.length === 0
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={
-                              !selectedDate
-                                ? "Please select a date first"
-                                : availableTimeSlots.length === 0
-                                ? "No available slots on this date"
-                                : "Select a time slot"
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableTimeSlots.map((slot) => (
-                            <SelectItem key={slot.id} value={slot.id}>
-                              {slot.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                     
+<Select
+  value={field.value}
+  onValueChange={field.onChange}
+  disabled={
+    !selectedDate || availableTimeSlots.length === 0
+  }
+>
+  <SelectTrigger
+    className={
+      !field.value
+        ? "bg-white font-black text-black text-destructive hover:bg-white/40 font-bold"
+        : ""
+    }
+  >
+    <SelectValue
+      className={
+        !field.value
+          ? "text-black"
+          : ""
+      }
+      placeholder={
+        !selectedDate
+          ? "Please select a date first"
+          : availableTimeSlots.length === 0
+          ? "No available slots on this date"
+          : "Select a time slot"
+      }
+    />
+  </SelectTrigger>
+  <SelectContent className="bg-white/80 text-black">
+    {availableTimeSlots.map((slot) => (
+      <SelectItem key={slot.id} value={slot.id}>
+        {slot.label}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+
                       {errors.timeSlot && (
                         <p className="text-sm font-medium text-red-500 mt-1">
                           {errors.timeSlot.message}
@@ -415,7 +428,7 @@ export function TestDriveForm({ car, testDriveInfo }) {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-emerald-600 text-white hover:bg-emerald-700 font-bold"
                 disabled={bookingInProgress}
               >
                 {bookingInProgress ? (
@@ -430,9 +443,9 @@ export function TestDriveForm({ car, testDriveInfo }) {
             </form>
 
             {/* Instructions */}
-            <div className="mt-8 bg-gray-50 p-4 rounded-lg">
+            <div className="mt-8 bg-emerald-300/10 p-4 rounded-lg">
               <h3 className="font-medium mb-2">What to expect</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <ul className="space-y-2 text-sm text-gray-200">
                 <li className="flex items-start">
                   <CheckCircle2 className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
                   Bring your driver's license for verification
@@ -453,9 +466,9 @@ export function TestDriveForm({ car, testDriveInfo }) {
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white text-black">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-black">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
               Test Drive Booked Successfully
             </DialogTitle>
@@ -483,7 +496,7 @@ export function TestDriveForm({ car, testDriveInfo }) {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Dealership:</span>
-                  <span>{dealership?.name || "Vehiql Motors"}</span>
+                  <span>{dealership?.name || "Car Hunter"}</span>
                 </div>
               </div>
 
@@ -494,7 +507,7 @@ export function TestDriveForm({ car, testDriveInfo }) {
           )}
 
           <div className="flex justify-end">
-            <Button onClick={handleCloseConfirmation}>Done</Button>
+            <Button className="bg-black text-white" onClick={handleCloseConfirmation}>Done</Button>
           </div>
         </DialogContent>
       </Dialog>

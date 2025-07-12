@@ -28,6 +28,7 @@ import { cancelTestDrive } from "@/actions/test-drive";
 export const TestDrivesList = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [localTestDrives, setLocalTestDrives] = useState(null); // <-- add this
 
   // Custom hooks for API calls
   const {
@@ -56,6 +57,13 @@ export const TestDrivesList = () => {
     fetchTestDrives({ search, status: statusFilter });
   }, [search, statusFilter]);
 
+  // Sync local state with fetched data
+  useEffect(() => {
+    if (testDrivesData?.data) {
+      setLocalTestDrives(testDrivesData.data);
+    }
+  }, [testDrivesData]);
+
   // Handle errors
   useEffect(() => {
     if (testDrivesError) {
@@ -76,8 +84,15 @@ export const TestDrivesList = () => {
       fetchTestDrives({ search, status: statusFilter });
     }
     if (cancelResult?.success) {
+      setLocalTestDrives((prev) =>
+        prev
+          ? prev.map((b) =>
+              b.id === cancelResult.id ? { ...b, status: "CANCELLED" } : b
+            )
+          : prev
+      );
       toast.success("Test drive cancelled successfully");
-      fetchTestDrives({ search, status: statusFilter });
+      fetchTestDrives({ search, status: statusFilter }); // optional: keep for server sync
     }
   }, [updateResult, cancelResult]);
 
@@ -113,7 +128,7 @@ export const TestDrivesList = () => {
             <SelectTrigger>
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="text-black bg-white/80 font-extrabold">
               <SelectItem>All Statuses</SelectItem>
               <SelectItem value="PENDING">Pending</SelectItem>
               <SelectItem value="CONFIRMED">Confirmed</SelectItem>
@@ -125,8 +140,8 @@ export const TestDrivesList = () => {
 
           {/* Search Form */}
           <form onSubmit={handleSearchSubmit} className="flex w-full">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <div className="relative flex-1 bg-white/10">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4  text-gray-500" />
               <Input
                 type="search"
                 placeholder="Search by car or customer..."
@@ -135,7 +150,7 @@ export const TestDrivesList = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Button type="submit" className="ml-2">
+            <Button type="submit" className="ml-2 bg-white text-black hover:bg-muted-foreground">
               Search
             </Button>
           </form>
@@ -143,7 +158,7 @@ export const TestDrivesList = () => {
       </div>
 
       {/* Test Drives List */}
-      <Card>
+      <Card className="bg-muted-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CalendarRange className="h-5 w-5" />
@@ -181,14 +196,13 @@ export const TestDrivesList = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {testDrivesData?.data?.map((booking) => (
+              {(localTestDrives || [])?.map((booking) => (
                 <div key={booking.id} className="relative">
                   <TestDriveCard
                     booking={booking}
                     onCancel={handleCancel}
-                    showActions={["PENDING", "CONFIRMED"].includes(
-                      booking.status
-                    )}
+                    onAfterCancel={() => fetchTestDrives({ search, status: statusFilter })}
+                    showActions={["PENDING", "CONFIRMED"].includes(booking.status)}
                     isAdmin={true}
                     isCancelling={cancelling}
                     cancelError={cancelError}
@@ -203,7 +217,7 @@ export const TestDrivesList = () => {
                         <SelectTrigger className="w-full h-8">
                           <SelectValue placeholder="Update Status" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="text-black bg-white/80 font-extrabold">
                           <SelectItem value="PENDING">Pending</SelectItem>
                           <SelectItem value="CONFIRMED">Confirmed</SelectItem>
                           <SelectItem value="COMPLETED">Completed</SelectItem>

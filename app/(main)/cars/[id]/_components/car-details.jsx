@@ -38,6 +38,7 @@ export function CarDetails({ car, testDriveInfo }) {
   const { isSignedIn } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(car.wishlisted);
+  const [emiDialogOpen, setEmiDialogOpen] = useState(false);
 
   const {
     loading: savingCar,
@@ -159,8 +160,8 @@ export function CarDetails({ car, testDriveInfo }) {
           <div className="flex mt-4 gap-4">
             <Button
               variant="outline"
-              className={`flex items-center gap-2 flex-1 ${
-                isWishlisted ? "text-red-500" : ""
+              className={`flex items-center hover:border-red-500 hover:bg-red-400 gap-2 flex-1 ${
+                isWishlisted ? "text-white hover:border-red-500" : ""
               }`}
               onClick={handleSaveCar}
               disabled={savingCar}
@@ -172,7 +173,7 @@ export function CarDetails({ car, testDriveInfo }) {
             </Button>
             <Button
               variant="outline"
-              className="flex items-center gap-2 flex-1"
+              className="flex items-center gap-2 flex-1 "
               onClick={handleShare}
             >
               <Share2 className="h-5 w-5" />
@@ -182,9 +183,9 @@ export function CarDetails({ car, testDriveInfo }) {
         </div>
 
         {/* Car Details */}
-        <div className="w-full lg:w-5/12">
+        <div className="w-full lg:w-5/12 ">
           <div className="flex items-center justify-between">
-            <Badge className="mb-2">{car.bodyType}</Badge>
+            <Badge className="mb-2 bg-white hover:bg-muted-foreground text-black font-extrabold">{car.bodyType}</Badge>
           </div>
 
           <h1 className="text-4xl font-bold mb-1">
@@ -198,40 +199,46 @@ export function CarDetails({ car, testDriveInfo }) {
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
             <div className="flex items-center gap-2">
-              <Gauge className="text-gray-500 h-5 w-5" />
+              <Gauge className="text-emerald-500 h-5 w-5" />
               <span>{car.mileage.toLocaleString()} miles</span>
             </div>
             <div className="flex items-center gap-2">
-              <Fuel className="text-gray-500 h-5 w-5" />
+              <Fuel className="text-emerald-500 h-5 w-5" />
               <span>{car.fuelType}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Car className="text-gray-500 h-5 w-5" />
+              <Car className="text-emerald-500 h-5 w-5" />
               <span>{car.transmission}</span>
             </div>
           </div>
 
-          <Dialog>
-            <DialogTrigger className="w-full text-start">
-              <Card className="pt-5">
-                <CardContent>
-                  <div className="flex items-center gap-2 text-lg font-medium mb-2">
-                    <Currency className="h-5 w-5 text-blue-600" />
-                    <h3>EMI Calculator</h3>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Estimated Monthly Payment:{" "}
-                    <span className="font-bold text-gray-900">
-                      {formatCurrency(car.price / 60)}
-                    </span>{" "}
-                    for 60 months
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    *Based on $0 down payment and 4.5% interest rate
-                  </div>
-                </CardContent>
-              </Card>
-            </DialogTrigger>
+          {/* EMI Calculator Section */}
+          <Card className="pt-5 mb-4">
+            <CardContent>
+              <div className="flex items-center gap-2 text-lg font-medium mb-2">
+                <Currency className="h-5 w-5 text-blue-600" />
+                <h3>EMI Calculator</h3>
+              </div>
+              <div className="text-sm text-gray-400">
+                Estimated Monthly Payment:{" "}
+                <span className="font-extrabold text-emerald-600">
+                  {formatCurrency(car.price / 60)}
+                </span>{" "}
+                for 60 months
+              </div>
+              <div className="text-xs text-gray-400 mt-1">
+                *Based on $0 down payment and 4.5% interest rate
+              </div>
+              <Button
+                className="mt-4 w-full bg-emerald-600 text-white hover:bg-muted-30"
+                onClick={() => setEmiDialogOpen(true)}
+              >
+                Calculate EMI
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Dialog open={emiDialogOpen} onOpenChange={setEmiDialogOpen}>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Vehiql Car Loan Calculator</DialogTitle>
@@ -247,12 +254,12 @@ export function CarDetails({ car, testDriveInfo }) {
                 <MessageSquare className="h-5 w-5 text-blue-600" />
                 <h3>Have Questions?</h3>
               </div>
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-sm text-gray-400 mb-3">
                 Our representatives are available to answer all your queries
                 about this vehicle.
               </p>
               <a href="mailto:help@vehiql.in">
-                <Button variant="outline" className="w-full">
+                <Button variant="submit" className="w-full bg-emerald-600 text-white hover:bg-muted-30">
                   Request Info
                 </Button>
               </a>
@@ -271,7 +278,7 @@ export function CarDetails({ car, testDriveInfo }) {
           {/* Book Test Drive Button */}
           {car.status !== "SOLD" && car.status !== "UNAVAILABLE" && (
             <Button
-              className="w-full py-6 text-lg"
+              className="w-full py-6 text-lg bg-white/60 hover:bg-muted-50 hover:text-white text-black font-extrabold"
               onClick={handleBookTestDrive}
               disabled={testDriveInfo.userTestDrive}
             >
@@ -287,12 +294,12 @@ export function CarDetails({ car, testDriveInfo }) {
         </div>
       </div>
 
-      {/* Details & Features Section */}
-      <div className="mt-12 p-6 bg-white rounded-lg shadow-sm">
+      {/* Description Section */}
+      <div className="mt-12 p-6 bg-muted-50 rounded-lg shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 className="text-2xl font-bold mb-6">Description</h3>
-            <p className="whitespace-pre-line text-gray-700">
+            <h3 className="text-2xl font-bold  text-blue-700 mb-6">Description</h3>
+            <p className="whitespace-pre-line text-gray-400">
               {car.description}
             </p>
           </div>
@@ -327,47 +334,47 @@ export function CarDetails({ car, testDriveInfo }) {
       </div>
 
       {/* Specifications Section */}
-      <div className="mt-8 p-6 bg-white rounded-lg shadow-sm">
-        <h2 className="text-2xl font-bold mb-6">Specifications</h2>
-        <div className="bg-gray-50 rounded-lg p-6">
+      <div className="mt-8 p-6 bg-muted-50 text-white rounded-lg shadow-sm">
+        <h2 className="text-2xl font-bold  text-blue-700 mb-6">Specifications</h2>
+        <div className="bg-white/10 rounded-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Make</span>
+              <span className="text-gray-300">Make</span>
               <span className="font-medium">{car.make}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Model</span>
+              <span className="text-gray-300">Model</span>
               <span className="font-medium">{car.model}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Year</span>
+              <span className="text-gray-300">Year</span>
               <span className="font-medium">{car.year}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Body Type</span>
+              <span className="text-gray-300">Body Type</span>
               <span className="font-medium">{car.bodyType}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Fuel Type</span>
+              <span className="text-gray-300">Fuel Type</span>
               <span className="font-medium">{car.fuelType}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Transmission</span>
+              <span className="text-gray-300">Transmission</span>
               <span className="font-medium">{car.transmission}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Mileage</span>
+              <span className="text-gray-300">Mileage</span>
               <span className="font-medium">
                 {car.mileage.toLocaleString()} miles
               </span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Color</span>
+              <span className="text-gray-300">Color</span>
               <span className="font-medium">{car.color}</span>
             </div>
             {car.seats && (
               <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600">Seats</span>
+                <span className="text-gray-300">Seats</span>
                 <span className="font-medium">{car.seats}</span>
               </div>
             )}
@@ -376,22 +383,22 @@ export function CarDetails({ car, testDriveInfo }) {
       </div>
 
       {/* Dealership Location Section */}
-      <div className="mt-8 p-6 bg-white rounded-lg shadow-sm">
-        <h2 className="text-2xl font-bold mb-6">Dealership Location</h2>
-        <div className="bg-gray-50 rounded-lg p-6">
+      <div className="mt-8 p-6 bg-muted-50 text-white rounded-lg shadow-sm">
+        <h2 className="text-2xl font-bold text-blue-700 mb-6">Dealership Location</h2>
+        <div className="bg-white/10  rounded-lg p-6">
           <div className="flex flex-col md:flex-row gap-6 justify-between">
             {/* Dealership Name and Address */}
             <div className="flex items-start gap-3">
               <LocateFixed className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
               <div>
                 <h4 className="font-medium">Vehiql Motors</h4>
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   {testDriveInfo.dealership?.address || "Not Available"}
                 </p>
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-300 mt-1">
                   Phone: {testDriveInfo.dealership?.phone || "Not Available"}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Email: {testDriveInfo.dealership?.email || "Not Available"}
                 </p>
               </div>
@@ -422,7 +429,7 @@ export function CarDetails({ car, testDriveInfo }) {
                           key={day.dayOfWeek}
                           className="flex justify-between text-sm"
                         >
-                          <span className="text-gray-600">
+                          <span className="text-gray-300">
                             {day.dayOfWeek.charAt(0) +
                               day.dayOfWeek.slice(1).toLowerCase()}
                           </span>
@@ -444,7 +451,7 @@ export function CarDetails({ car, testDriveInfo }) {
                       "Sunday",
                     ].map((day, index) => (
                       <div key={day} className="flex justify-between text-sm">
-                        <span className="text-gray-600">{day}</span>
+                        <span className="text-gray-300">{day}</span>
                         <span>
                           {index < 5
                             ? "9:00 - 18:00"

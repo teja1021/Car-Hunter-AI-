@@ -35,17 +35,10 @@ export async function getFeaturedCars(limit = 3) {
   }
 }
 
-// Function to convert File to base64
-async function fileToBase64(file) {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  return buffer.toString("base64");
-}
-
 /**
- * Process car image with Gemini AI
+ * Process car image with Gemini AI - Updated to handle base64 data
  */
-export async function processImageSearch(file) {
+export async function processImageSearch(imageData) {
   try {
     // Get request data for ArcJet
     const req = await request();
@@ -81,14 +74,14 @@ export async function processImageSearch(file) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Convert image file to base64
-    const base64Image = await fileToBase64(file);
+    // Extract base64 data (remove the data:image/jpeg;base64, prefix)
+    const base64Data = imageData.base64.split(',')[1];
 
     // Create image part for the model
     const imagePart = {
       inlineData: {
-        data: base64Image,
-        mimeType: file.type,
+        data: base64Data,
+        mimeType: imageData.type,
       },
     };
 
@@ -135,6 +128,10 @@ export async function processImageSearch(file) {
       };
     }
   } catch (error) {
-    throw new Error("AI Search error:" + error.message);
+    console.error('Error processing image:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 }

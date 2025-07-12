@@ -180,14 +180,14 @@ export const CarFilters = ({ filters }) => {
     <div className="flex lg:flex-col justify-between gap-4">
       {/* Mobile Filters */}
       <div className="lg:hidden mb-4">
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filters
+              <Button variant="outline" className="flex items-center gap-2 text-gray-900 bg-gray-100 hover:bg-gray-300">
+                <Filter className="h-4 w-4 text-gray-700" />
+                <span className="font-semibold">Filters</span>
                 {activeFilterCount > 0 && (
-                  <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                  <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-emerald-600 text-white">
                     {activeFilterCount}
                   </Badge>
                 )}
@@ -195,12 +195,11 @@ export const CarFilters = ({ filters }) => {
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-full sm:max-w-md overflow-y-auto"
+              className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900"
             >
               <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
+                <SheetTitle className="text-gray-900 font-bold">Filters</SheetTitle>
               </SheetHeader>
-
               <div className="py-6">
                 <CarFilterControls
                   filters={filters}
@@ -209,17 +208,16 @@ export const CarFilters = ({ filters }) => {
                   onClearFilter={handleClearFilter}
                 />
               </div>
-
               <SheetFooter className="sm:justify-between flex-row pt-2 border-t space-x-4 mt-auto">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={clearFilters}
-                  className="flex-1"
+                  className="flex-1 text-gray-900 bg-gray-100 hover:bg-gray-200"
                 >
                   Reset
                 </Button>
-                <Button type="button" onClick={applyFilters} className="flex-1">
+                <Button type="button" onClick={applyFilters} className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700">
                   Show Results
                 </Button>
               </SheetFooter>
@@ -232,20 +230,19 @@ export const CarFilters = ({ filters }) => {
         value={sortBy}
         onValueChange={(value) => {
           setSortBy(value);
-          // Apply filters immediately when sort changes
           setTimeout(() => applyFilters(), 0);
         }}
       >
-        <SelectTrigger className="w-[180px] lg:w-full">
-          <SelectValue placeholder="Sort by" />
+        <SelectTrigger className="w-[180px] lg:w-full bg-gray-100 text-gray-900">
+          <SelectValue placeholder="Sort by" className="text-gray-900" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white text-gray-900">
           {[
             { value: "newest", label: "Newest First" },
             { value: "priceAsc", label: "Price: Low to High" },
             { value: "priceDesc", label: "Price: High to Low" },
           ].map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem key={option.value} value={option.value} className="text-gray-900 hover:bg-gray-100">
               {option.label}
             </SelectItem>
           ))}
@@ -254,17 +251,17 @@ export const CarFilters = ({ filters }) => {
 
       {/* Desktop Filters */}
       <div className="hidden lg:block sticky top-24">
-        <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="border rounded-lg overflow-hidden bg-white/60">
           <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
-            <h3 className="font-medium flex items-center">
-              <Sliders className="mr-2 h-4 w-4" />
+            <h3 className="font-bold flex items-center text-gray-900">
+              <Sliders className="mr-2 h-4 w-4 text-gray-700" />
               Filters
             </h3>
             {activeFilterCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 text-sm text-gray-600"
+                className="h-8 text-sm text-emerald-700 hover:bg-gray-100"
                 onClick={clearFilters}
               >
                 <X className="mr-1 h-3 w-3" />
@@ -283,7 +280,7 @@ export const CarFilters = ({ filters }) => {
           </div>
 
           <div className="px-4 py-4 border-t">
-            <Button onClick={applyFilters} className="w-full">
+            <Button onClick={applyFilters} className="w-full bg-black text-white hover:bg-muted-50">
               Apply Filters
             </Button>
           </div>

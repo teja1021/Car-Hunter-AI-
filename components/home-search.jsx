@@ -97,7 +97,7 @@ export function HomeSearch() {
     router.push(`/cars?search=${encodeURIComponent(searchTerm)}`);
   };
 
-  // Handle image search submissions
+  // Handle image search submissions - FIXED VERSION
   const handleImageSearch = async (e) => {
     e.preventDefault();
     if (!searchImage) {
@@ -105,8 +105,29 @@ export function HomeSearch() {
       return;
     }
 
-    // Use the processImageFn from useFetch hook
-    await processImageFn(searchImage);
+    try {
+      // Convert File to base64 string
+      const base64String = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(searchImage);
+      });
+
+      // Create a serializable object to send to Server Action
+      const imageData = {
+        base64: base64String,
+        type: searchImage.type,
+        name: searchImage.name,
+        size: searchImage.size,
+      };
+
+      // Use the processImageFn from useFetch hook with serializable data
+      await processImageFn(imageData);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      toast.error("Failed to process image");
+    }
   };
 
   return (
@@ -119,7 +140,7 @@ export function HomeSearch() {
             placeholder="Enter make, model, or use our AI Image Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-12 py-6 w-full rounded-full border-gray-300 bg-white/95 backdrop-blur-sm"
+            className="pl-10 pr-12 py-6 w-full rounded-full border-gray-300 bg-black/95 backdrop-blur-sm"
           />
 
           {/* Image Search Button */}
@@ -129,13 +150,17 @@ export function HomeSearch() {
               onClick={() => setIsImageSearchActive(!isImageSearchActive)}
               className="cursor-pointer rounded-xl p-1.5"
               style={{
-                background: isImageSearchActive ? "black" : "",
-                color: isImageSearchActive ? "white" : "",
+                background: isImageSearchActive ? "white" : "",
+                color: isImageSearchActive ? "black" : "",
               }}
             />
           </div>
 
-          <Button type="submit" className="absolute right-2 rounded-full">
+          <Button
+            variant="outline"
+            type="submit"
+            className="absolute right-2 rounded-full text-bold bg-white/50 hover:bg-white/70 text-black/95 px-4 py-2"
+          >
             Search
           </Button>
         </div>
@@ -144,7 +169,7 @@ export function HomeSearch() {
       {isImageSearchActive && (
         <div className="mt-4">
           <form onSubmit={handleImageSearch} className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-3xl p-6 text-center">
+            <div className="border-2 border-dashed border-gray-300 bg-muted-30 rounded-3xl p-6 text-center">
               {imagePreview ? (
                 <div className="flex flex-col items-center">
                   <img
@@ -153,6 +178,8 @@ export function HomeSearch() {
                     className="h-40 object-contain mb-4"
                   />
                   <Button
+                    type="button"
+                    className="bg-white/70 font-extrabold text-black/95 hover:font-semibold"
                     variant="outline"
                     onClick={() => {
                       setSearchImage(null);
@@ -187,7 +214,7 @@ export function HomeSearch() {
             {imagePreview && (
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-emerald-700 text-white font-bold hover:bg-emerald-900"
                 disabled={isUploading || isProcessing}
               >
                 {isUploading

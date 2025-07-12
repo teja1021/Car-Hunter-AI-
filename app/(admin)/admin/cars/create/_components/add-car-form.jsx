@@ -167,14 +167,36 @@ export const AddCarForm = () => {
     }
   }, [processImageResult, setValue, uploadedAiImage]);
 
-  // Process image with Gemini AI
+  // Process image with Gemini AI - FIXED VERSION
   const processWithAI = async () => {
     if (!uploadedAiImage) {
       toast.error("Please upload an image first");
       return;
     }
 
-    await processImageFn(uploadedAiImage);
+    try {
+      // Convert File to base64 string (same as home-search.jsx)
+      const base64String = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(uploadedAiImage);
+      });
+
+      // Create a serializable object to send to Server Action
+      const imageData = {
+        base64: base64String,
+        type: uploadedAiImage.type,
+        name: uploadedAiImage.name,
+        size: uploadedAiImage.size,
+      };
+
+      // Call the server action with serializable data
+      await processImageFn(imageData);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      toast.error("Failed to process image");
+    }
   };
 
   // Handle AI image upload with Dropzone
@@ -297,12 +319,23 @@ export const AddCarForm = () => {
         onValueChange={setActiveTab}
         className="mt-6"
       >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-          <TabsTrigger value="ai">AI Upload</TabsTrigger>
-        </TabsList>
+        <TabsList className="grid w-full grid-cols-2 bg-black p-1 rounded-lg">
+  <TabsTrigger
+    value="manual"
+    className="text-white font-extrabold data-[state=active]:bg-white data-[state=active]:text-black  rounded-md"
+  >
+    Manual Entry
+  </TabsTrigger>
+  <TabsTrigger
+    value="ai"
+    className="text-white font-extrabold data-[state=active]:bg-white data-[state=active]:text-black  rounded-md"
+  >
+    AI Upload
+  </TabsTrigger>
+</TabsList>
 
-        <TabsContent value="manual" className="mt-6">
+
+        <TabsContent value="manual" className="mt-6 bg-muted-30">
           <Card>
             <CardHeader>
               <CardTitle>Car Details</CardTitle>
@@ -314,13 +347,13 @@ export const AddCarForm = () => {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Make */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 ">
                     <Label htmlFor="make">Make</Label>
-                    <Input
+                    <Input 
                       id="make"
                       {...register("make")}
                       placeholder="e.g. Toyota"
-                      className={errors.make ? "border-red-500" : ""}
+                      className={` ${errors.make ? "border-red-500" : ""}`}
                     />
                     {errors.make && (
                       <p className="text-xs text-red-500">
@@ -421,7 +454,7 @@ export const AddCarForm = () => {
                       >
                         <SelectValue placeholder="Select fuel type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white/80 font-semibold text-black" >
                         {fuelTypes.map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
@@ -448,7 +481,7 @@ export const AddCarForm = () => {
                       >
                         <SelectValue placeholder="Select transmission" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white/80 font-semibold text-black">
                         {transmissions.map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
@@ -475,7 +508,7 @@ export const AddCarForm = () => {
                       >
                         <SelectValue placeholder="Select body type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white/80 font-semibold text-black">
                         {bodyTypes.map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
@@ -513,7 +546,7 @@ export const AddCarForm = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white/80 font-semibold text-black">
                         {carStatuses.map((status) => (
                           <SelectItem key={status} value={status}>
                             {status.charAt(0) + status.slice(1).toLowerCase()}
@@ -544,7 +577,7 @@ export const AddCarForm = () => {
 
                 {/* Featured */}
                 <div className="flex items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <Checkbox
+                  <Checkbox className="bg-white text-black"
                     id="featured"
                     checked={watch("featured")}
                     onCheckedChange={(checked) => {
@@ -582,7 +615,7 @@ export const AddCarForm = () => {
                           Drag & drop or click to upload multiple images
                         </span>
                         <span className="text-xs text-gray-500 mt-1">
-                          (JPG, PNG, WebP, max 5MB each)
+                          (JPG, PNG, WebP, max 1MB each)
                         </span>
                       </div>
                     </div>
@@ -634,7 +667,7 @@ export const AddCarForm = () => {
 
                 <Button
                   type="submit"
-                  className="w-full md:w-auto"
+                  className="w-full md:w-auto bg-white text-black font-extrabold"
                   disabled={addCarLoading}
                 >
                   {addCarLoading ? (
@@ -651,7 +684,7 @@ export const AddCarForm = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="ai" className="mt-6">
+        <TabsContent value="ai" className="mt-6 bg-muted-30">
           <Card>
             <CardHeader>
               <CardTitle>AI-Powered Car Details Extraction</CardTitle>
@@ -730,9 +763,9 @@ export const AddCarForm = () => {
                   </div>
                 )}
 
-                <div className="bg-gray-50 p-4 rounded-md">
+                <div className=" p-4 rounded-md bg-emerald-400/70">
                   <h3 className="font-medium mb-2">How it works</h3>
-                  <ol className="space-y-2 text-sm text-gray-600 list-decimal pl-4">
+                  <ol className="space-y-2 text-sm  text-black list-decimal pl-4">
                     <li>Upload a clear image of the car</li>
                     <li>Click "Extract Details" to analyze with Gemini AI</li>
                     <li>Review the extracted information</li>

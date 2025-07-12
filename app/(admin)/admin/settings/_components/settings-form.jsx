@@ -221,19 +221,26 @@ export const SettingsForm = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="hours">
-        <TabsList>
-          <TabsTrigger value="hours">
-            <Clock className="h-4 w-4 mr-2" />
-            Working Hours
-          </TabsTrigger>
-          <TabsTrigger value="admins">
-            <Shield className="h-4 w-4 mr-2" />
-            Admin Users
-          </TabsTrigger>
-        </TabsList>
+        <TabsList className="bg-black p-1 rounded-lg">
+  <TabsTrigger
+    value="hours"
+    className="text-white data-[state=active]:bg-white data-[state=active]:text-black   rounded-md flex items-center"
+  >
+    <Clock className="h-4 w-4 mr-2" />
+    Working Hours
+  </TabsTrigger>
+  <TabsTrigger
+    value="admins"
+    className="text-white data-[state=active]:bg-white data-[state=active]:text-black   rounded-md flex items-center"
+  >
+    <Shield className="h-4 w-4 mr-2" />
+    Admin Users
+  </TabsTrigger>
+</TabsList>
+
 
         <TabsContent value="hours" className="space-y-6 mt-6">
-          <Card>
+          <Card className="bg-muted-50">
             <CardHeader>
               <CardTitle>Working Hours</CardTitle>
               <CardDescription>
@@ -245,7 +252,7 @@ export const SettingsForm = () => {
                 {DAYS.map((day, index) => (
                   <div
                     key={day.value}
-                    className="grid grid-cols-12 gap-4 items-center py-3 px-4 rounded-lg hover:bg-slate-50"
+                    className="grid grid-cols-12 gap-4 items-center py-3 px-4 rounded-lg hover:bg-white/30 hover:text-black"
                   >
                     <div className="col-span-3 md:col-span-2">
                       <div className="font-medium">{day.label}</div>
@@ -315,8 +322,8 @@ export const SettingsForm = () => {
                 ))}
               </div>
 
-              <div className="mt-6 flex justify-end">
-                <Button onClick={handleSaveHours} disabled={savingHours}>
+              <div className="mt-6 flex justify-end ">
+                <Button className="bg-white/80 text-black font-extrabold hover:bg-white/40" onClick={handleSaveHours} disabled={savingHours}>
                   {savingHours ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -335,7 +342,7 @@ export const SettingsForm = () => {
         </TabsContent>
 
         <TabsContent value="admins" className="space-y-6 mt-6">
-          <Card>
+          <Card className="bg-muted-50">
             <CardHeader>
               <CardTitle>Admin Users</CardTitle>
               <CardDescription>
@@ -343,8 +350,8 @@ export const SettingsForm = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-6 relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+              <div className="mb-6 relative font-extrabold bg-white/30 rounded-lg">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-300" />
                 <Input
                   type="search"
                   placeholder="Search users..."
@@ -363,7 +370,7 @@ export const SettingsForm = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>User</TableHead>
+                        <TableHead className="font-extrabold">User</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
@@ -394,7 +401,7 @@ export const SettingsForm = () => {
                               className={
                                 user.role === "ADMIN"
                                   ? "bg-green-800"
-                                  : "bg-gray-800"
+                                  : "bg-blue-400/50"
                               }
                             >
                               {user.role}
@@ -402,10 +409,10 @@ export const SettingsForm = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             {user.role === "ADMIN" ? (
-                              <Button
+                              <Button 
                                 variant="outline"
                                 size="sm"
-                                className="text-red-600"
+                                className="text-white bg-red-600/40 border-red-400 hover:bg-muted-50 hover:text-red-500"
                                 onClick={() => {
                                   setUserToDemote(user);
                                   setConfirmRemoveDialog(true);
@@ -416,7 +423,7 @@ export const SettingsForm = () => {
                                 Remove Admin
                               </Button>
                             ) : (
-                              <Button
+                              <Button className="text-white bg-emerald-600/40 border-emerald-400 hover:bg-muted-50 hover:text-emerald-500"
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
@@ -425,7 +432,7 @@ export const SettingsForm = () => {
                                 }}
                                 disabled={updatingRole}
                               >
-                                <Shield className="h-4 w-4 mr-2" />
+                                <Shield className="h-4 w-4 mr-2 " />
                                 Make Admin
                               </Button>
                             )}

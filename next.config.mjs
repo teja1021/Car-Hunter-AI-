@@ -1,14 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsHmrCache: false, // defaults to true
-  },
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "vgctdgjmlnafwapymefu.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
+      {
+        protocol: "https", 
+        hostname: "images.clerk.dev",
+      },
+    ],
+    domains: [
+      "vgctdgjmlnafwapymefu.supabase.co",
+      "img.clerk.com",
+      "images.clerk.dev",
+      // add other domains if needed
     ],
   },
 

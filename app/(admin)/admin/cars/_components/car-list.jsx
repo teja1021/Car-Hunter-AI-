@@ -140,19 +140,19 @@ export const CarsList = () => {
     switch (status) {
       case "AVAILABLE":
         return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+          <Badge className="bg-green-300 text-green-800 hover:bg-green-100">
             Available
           </Badge>
         );
       case "UNAVAILABLE":
         return (
-          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+          <Badge className="bg-amber-300 text-amber-800 hover:bg-amber-100">
             Unavailable
           </Badge>
         );
       case "SOLD":
         return (
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+          <Badge className="bg-blue-300 text-blue-800 hover:bg-blue-100">
             Sold
           </Badge>
         );
@@ -167,15 +167,15 @@ export const CarsList = () => {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <Button
           onClick={() => router.push("/admin/cars/create")}
-          className="flex items-center"
+          className="flex items-center bg-white text-black font-bold hover:bg-muted-50  hover:text-white shadow-sm sm:shadow-md transition-colors rounded-md px-4 py-2 disabled:opacity-50 disabled:pointer-events-none"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 font-extrabold" />
           Add Car
         </Button>
 
         {/* Simple Search Form */}
         <form onSubmit={handleSearchSubmit} className="flex w-full sm:w-auto">
-          <div className="relative flex-1">
+          <div className="relative flex-1 bg-muted-30">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input
               type="search"
@@ -189,7 +189,7 @@ export const CarsList = () => {
       </div>
 
       {/* Cars Table */}
-      <Card>
+      <Card className="bg-muted-50">
         <CardContent className="p-0">
           {loadingCars && !carsData ? (
             <div className="flex justify-center items-center py-12">
@@ -262,7 +262,7 @@ export const CarsList = () => {
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="bg-white/80 text-black">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem
                               onClick={() => router.push(`/cars/${car.id}`)}
@@ -273,22 +273,14 @@ export const CarsList = () => {
                             <DropdownMenuSeparator />
                             <DropdownMenuLabel>Status</DropdownMenuLabel>
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusUpdate(car, "AVAILABLE")
-                              }
-                              disabled={
-                                car.status === "AVAILABLE" || updatingCar
-                              }
+                              onClick={() => handleStatusUpdate(car, "AVAILABLE")}
+                              disabled={car.status === "AVAILABLE" || updatingCar}
                             >
                               Set Available
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusUpdate(car, "UNAVAILABLE")
-                              }
-                              disabled={
-                                car.status === "UNAVAILABLE" || updatingCar
-                              }
+                              onClick={() => handleStatusUpdate(car, "UNAVAILABLE")}
+                              disabled={car.status === "UNAVAILABLE" || updatingCar}
                             >
                               Set Unavailable
                             </DropdownMenuItem>
