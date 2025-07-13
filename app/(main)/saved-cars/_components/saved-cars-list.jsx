@@ -18,7 +18,7 @@ export function SavedCarsList({ initialData }) {
           You haven't saved any cars yet. Browse our listings and click the
           heart icon to save cars for later.
         </p>
-        <Button variant="default" className="bg-white text-black font-extrabold" asChild>
+        <Button variant="default" className="bg-white text-black font-extrabold hover:bg-white/60" asChild>
           <Link href="/cars">Browse Cars</Link>
         </Button>
       </div>
