@@ -82,7 +82,7 @@ export function CarDetails({ car, testDriveInfo }) {
       navigator
         .share({
           title: `${car.year} ${car.make} ${car.model}`,
-          text: `Check out this ${car.year} ${car.make} ${car.model} on Vehiql!`,
+          text: `Check out this ${car.year} ${car.make} ${car.model} on CarHunter!`,
           url: window.location.href,
         })
         .catch((error) => {
@@ -258,7 +258,7 @@ export function CarDetails({ car, testDriveInfo }) {
                 Our representatives are available to answer all your queries
                 about this vehicle.
               </p>
-              <a href="mailto:help@vehiql.in">
+              <a href="mailto:help@CarHunter.in">
                 <Button variant="submit" className="w-full bg-emerald-600 text-white hover:bg-muted-30">
                   Request Info
                 </Button>
@@ -391,7 +391,7 @@ export function CarDetails({ car, testDriveInfo }) {
             <div className="flex items-start gap-3">
               <LocateFixed className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
               <div>
-                <h4 className="font-medium">Vehiql Motors</h4>
+                <h4 className="font-medium">CarHunter Motors</h4>
                 <p className="text-gray-300">
                   {testDriveInfo.dealership?.address || "Not Available"}
                 </p>
