@@ -9,8 +9,8 @@ import { Mail, Instagram, Facebook, Linkedin } from "lucide-react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Vehiqle",
-  description: "Find your Dream Car",
+  title: "Car-Hunter",
+  description: "Hunt your Dream Car",
 };
 
 export default function RootLayout({ children }) {

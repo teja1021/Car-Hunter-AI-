@@ -10,6 +10,10 @@ import { SignedOut } from "@clerk/nextjs";
 import { getFeaturedCars } from "@/actions/home";
 import { CarCard } from "@/components/car-card";
 import { HomeSearch } from "@/components/home-search";
+import HuntButton from "@/components/hunt-button";
+import CarMakeCard from "@/components/car-make-card";
+import BodyTypeCard from "@/components/body-type-card";
+import ScoutButton from "@/components/scout-button";
 import Link from "next/link";
 import Image from "next/image";
 import { bodyTypes, carMakes, faqItems } from "@/lib/data";
@@ -37,7 +41,6 @@ export default async function Home() {
               <h1 className="text-4xl md:text-5xl lg:text-7xl text-white wavy-text">
                 Begin the Hunt for Your Dream Car with <br/>
                 <span className="text-red-500 text-10xl mt-2 font-creep glitch-text tracking-wider melting-text flex items-center justify-center gap-2">
-                  
                   CAR HUNTER AI
                 </span>
               </h1>
@@ -58,11 +61,9 @@ export default async function Home() {
                 <Crosshair className="w-6 h-6 text-emerald-400" />
                 Prime Targets
               </h2>
-              <Button variant="ghost" className="flex items-center gap-2" asChild>
-                <Link href="/cars">
-                  See All Prey <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
+              <ScoutButton href="/cars" iconName="crosshair">
+                See All Prey
+              </ScoutButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredCars.map((car) => (
@@ -80,29 +81,13 @@ export default async function Home() {
                 <Binoculars className="w-6 h-6 text-emerald-400" />
                 Scout by Manufacturer
               </h2>
-              <Button variant="ghost" className="flex items-center gap-2" asChild>
-                <Link href="/cars">
-                  Scout All Makes <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
+              <ScoutButton href="/cars" iconName="binoculars">
+                Scout All Makes
+              </ScoutButton>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {carMakes.map((make) => (
-                <Link
-                  key={make.name}
-                  href={`/cars?make=${make.name}`}
-                  className="bg-white shrink-hover  rounded-lg shadow p-4 text-center transition cursor-pointer border border-emerald-900/20"
-                >
-                  <div className="h-16 w-auto mx-auto mb-2 relative ">
-                    <Image
-                      src={make.image}
-                      alt={make.name}
-                      fill
-                      style={{ objectFit: "contain" }}
-                    />
-                  </div>
-                  <h3 className="font-medium text-black/60">{make.name}</h3>
-                </Link>
+                <CarMakeCard key={make.name} make={make} />
               ))}
             </div>
           </div>
@@ -155,36 +140,13 @@ export default async function Home() {
                 <Binoculars className="w-6 h-6 text-emerald-400" />
                 Scout by Body Type
               </h2>
-              <Button variant="ghost" className="flex items-center gap-2" asChild>
-                <Link href="/cars">
-                  Scout All Types <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
+              <ScoutButton href="/cars" iconName="binoculars">
+                Scout All Types
+              </ScoutButton>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {bodyTypes.map((type) => (
-                <Link
-                  key={type.name}
-                  href={`/cars?bodyType=${type.name}`}
-                  className="relative group cursor-pointer bg-emerald-800/30 hover:bg-muted/90 rounded-lg border border-emerald-900/20"
-                >
-                  <div className="overflow-hidden rounded-lg flex justify-end h-28 mb-4 relative">
-                    <Image
-                      src={
-                        type.imageUrl || `/body/${type.name.toLowerCase()}.webp`
-                      }
-                      alt={type.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition duration-300"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg flex items-end">
-                    <h3 className="text-white text-xl font-bold pl-4 pb-2 flex items-center gap-2">
-                      <Crosshair className="w-5 h-5 text-emerald-400" />
-                      Mark: {type.name}
-                    </h3>
-                  </div>
-                </Link>
+                <BodyTypeCard key={type.name} type={type} />
               ))}
             </div>
           </div>
@@ -195,7 +157,7 @@ export default async function Home() {
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-bold text-center mb-8 text-white dark:text-white flex items-center justify-center gap-2">
               <Binoculars className="w-6 h-6 text-emerald-400" />
-              Hunter’s Field Guide
+              Hunter's Field Guide
             </h2>
             <Accordion type="single" collapsible className="w-full">
               {faqItems.map((faq, index) => (
@@ -226,17 +188,7 @@ export default async function Home() {
                     Join the hunt. Track, target, and claim your next ride with Car Hunter AI.
                   </p>
                   <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <Button
-                      size="lg"
-                      variant="secondary"
-                      className="bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-2"
-                      asChild
-                    >
-                      <Link href="/cars">
-                        <Crosshair className="w-5 h-5" />
-                        Start the Hunt
-                      </Link>
-                    </Button>
+                    <HuntButton />
                     <SignedOut>
                       <Button
                         size="lg"
@@ -252,7 +204,6 @@ export default async function Home() {
                     </SignedOut>
                   </div>
                 </div>
-                {/* Decorative glow elements */}
                 <div className="absolute right-0 top-0 w-[300px] h-[300px] bg-blue-800/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
                 <div className="absolute left-0 bottom-0 w-[200px] h-[200px] bg-blue-700/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
               </CardContent>

@@ -1,25 +1,21 @@
-// components/BackgroundMusic.jsx
 "use client";
 
 import { useRef, useEffect } from "react";
 
-export default function BackgroundMusic() {
+export function BackgroundMusic() {
   const audioRef = useRef(null);
 
   useEffect(() => {
     const handleToggle = (e) => {
       if (audioRef.current) {
-        const isEnabled =
-          e.detail?.enabled !== undefined
-            ? e.detail.enabled
-            : !audioRef.current.paused;
+        const isEnabled = e.detail?.enabled !== undefined 
+          ? e.detail.enabled 
+          : !audioRef.current.paused;
 
         if (isEnabled) {
-          audioRef.current
-            .play()
-            .catch((error) => {
-              console.log("Audio play failed:", error);
-            });
+          audioRef.current.play().catch((error) => {
+            console.log("Background music play failed:", error);
+          });
         } else {
           audioRef.current.pause();
         }
@@ -28,11 +24,9 @@ export default function BackgroundMusic() {
 
     const handleStart = () => {
       if (audioRef.current) {
-        audioRef.current
-          .play()
-          .catch((error) => {
-            console.log("Audio play failed:", error);
-          });
+        audioRef.current.play().catch((error) => {
+          console.log("Background music start failed:", error);
+        });
       }
     };
 
@@ -46,6 +40,7 @@ export default function BackgroundMusic() {
       });
     };
 
+    // Event listeners
     window.addEventListener("toggle-music", handleToggle);
     window.addEventListener("start-music", handleStart);
     window.addEventListener("play-car-sound", handleCarSound);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { checkUser } from "@/lib/checkUser";
 import Image from "next/image";
-import BackgroundMusic from "./BackgroundMusic";
+import { BackgroundMusic } from "./background-music"; // 🔧 FIXED IMPORT
 import MusicToggleButton from "./MusicToggleButton";
 
 const Header = async ({ isAdminPage = false }) => {
@@ -15,11 +15,11 @@ const Header = async ({ isAdminPage = false }) => {
   return (
     <>
       <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-10 supports-[backdrop-filter]:bg-background/60">
-        <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <nav className="container mx-auto px-2 h-16 flex items-center justify-between">
           <Link href={isAdminPage ? "/admin" : "/"} className="flex items-center gap-2 cursor-pointer">
             <Image
               src={"/CarHunter-logo-larged__2_-removebg-preview.png"}
-              alt="Vehiql Logo"
+              alt="CarHunter Logo"
               width={260}
               height={80}
               className="h-16 w-auto object-contain"
