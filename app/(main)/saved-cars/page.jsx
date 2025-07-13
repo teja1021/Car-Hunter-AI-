@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Saved Cars | Vehiql",
+  title: "Saved Cars | CarHunter",
   description: "View your saved cars and favorites",
 };
 
