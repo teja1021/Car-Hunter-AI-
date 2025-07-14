@@ -277,9 +277,7 @@ export function TestDriveForm({ car, testDriveInfo }) {
           <CardContent className="p-6">
             <h2 className="text-xl font-bold mb-4">Dealership Info</h2>
             <div className="text-sm">
-              <p className="font-medium">
-                {(!dealership?.name || dealership?.name === "Vehiql Motors") ? "Car Hunter" : dealership?.name}
-              </p>
+              <p className="font-medium">CarHunter Motors</p>
               <p className="text-white/50 mt-1">
                 {(!dealership?.address || dealership?.name === "Vehiql Motors") ? "Hunter Dungeon" : dealership?.address}
               </p>
@@ -496,7 +494,7 @@ export function TestDriveForm({ car, testDriveInfo }) {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Dealership:</span>
-                  <span>{dealership?.name || "Car Hunter"}</span>
+                  <span>CarHunter Motors</span>
                 </div>
               </div>
 
