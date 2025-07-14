@@ -241,7 +241,7 @@ export function CarDetails({ car, testDriveInfo }) {
           <Dialog open={emiDialogOpen} onOpenChange={setEmiDialogOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Vehiql Car Loan Calculator</DialogTitle>
+                <DialogTitle>CarHunter's Car Loan Calculator</DialogTitle>
                 <EmiCalculator price={car.price} />
               </DialogHeader>
             </DialogContent>
