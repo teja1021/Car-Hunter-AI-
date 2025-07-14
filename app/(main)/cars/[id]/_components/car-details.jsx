@@ -278,7 +278,7 @@ export function CarDetails({ car, testDriveInfo }) {
           {/* Book Test Drive Button */}
           {car.status !== "SOLD" && car.status !== "UNAVAILABLE" && (
             <Button
-              className="w-full py-6 text-lg bg-white/60 hover:bg-muted-50 hover:text-white text-black font-extrabold"
+              className="w-full py-6 text-lg bg-white hover:bg-white/60 hover:text-white text-black font-extrabold"
               onClick={handleBookTestDrive}
               disabled={testDriveInfo.userTestDrive}
             >
