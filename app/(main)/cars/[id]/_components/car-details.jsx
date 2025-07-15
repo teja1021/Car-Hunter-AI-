@@ -393,13 +393,13 @@ export function CarDetails({ car, testDriveInfo }) {
               <div>
                 <h4 className="font-medium">CarHunter Motors</h4>
                 <p className="text-gray-300">
-                  {testDriveInfo.dealership?.address || "Not Available"}
+                  Address: 143 car street,Kansar,pin-534199
                 </p>
                 <p className="text-gray-300 mt-1">
-                  Phone: {testDriveInfo.dealership?.phone || "Not Available"}
+                  Phone: +91 9999999999
                 </p>
                 <p className="text-gray-300">
-                  Email: {testDriveInfo.dealership?.email || "Not Available"}
+                  Email: CarGuy@CarHunter.com
                 </p>
               </div>
             </div>
